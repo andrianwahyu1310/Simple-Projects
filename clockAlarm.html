@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jam dan Alarm Digital</title>
+
+    <style>
+      /* ====== BASIC PAGE STYLING ====== */
+      body {
+        font-family: Georgia, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+      }
+
+      /* Digital clock display */
+      #time {
+        font-size: 40px;
+        margin-bottom: 20px;
+      }
+
+      /* Alarm status text */
+      #pesan {
+        font-weight: bold;
+        color: green;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Jam Digital</h1>
+
+    <!-- Display for the digital clock -->
+    <div id="time">--:--:--</div>
+
+    <!-- Alarm input -->
+    <input type="time" id="alarm" />
+    <button id="onAlarm">Mulai</button>
+
+    <!-- Status message -->
+    <p id="pesan">Silakan atur waktu alarm</p>
+
+    <!-- Alarm audio file -->
+    <audio id="audio" src="audio/alarm_converted.mp3" preload="auto"></audio>
+
+    <script>
+      // =======================
+      // GET DOM ELEMENTS
+      // =======================
+      const timeDisplay = document.getElementById("time");
+      const alarmTimeInput = document.getElementById("alarm");
+      const setAlarmButton = document.getElementById("onAlarm");
+      const pesan = document.getElementById("pesan");
+      const audio = document.getElementById("audio");
+
+      // Variable to store timeout ID for the alarm
+      let alarmTimeoutID = null;
+
+      // =======================
+      // REAL-TIME CLOCK FUNCTION
+      // =======================
+      function updateTime() {
+        const now = new Date();
+
+        // Format hours, minutes, and seconds to two digits
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
+
+        // Update the clock display
+        timeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+      }
+
+      // =======================
+      // FUNCTION TO DISPLAY MESSAGE
+      // =======================
+      function tampilkanPesan(text, color = "black") {
+        pesan.textContent = text;
+        pesan.style.color = color;
+      }
+
+      // Run the digital clock every second
+      updateTime();
+      setInterval(updateTime, 1000);
+
+      // =======================
+      // EVENT: CLICK "START" BUTTON
+      // =======================
+      setAlarmButton.addEventListener("click", () => {
+        const inputVal = alarmTimeInput.value;
+
+        // If no alarm time is set
+        if (!inputVal) {
+          tampilkanPesan("❌ Please enter an alarm time", "red");
+          return;
+        }
+
+        // Split hours and minutes
+        const [hourStr, minuteStr] = inputVal.split(":");
+
+        // Create a Date object for the alarm time
+        const alarmTime = new Date();
+        alarmTime.setHours(parseInt(hourStr));
+        alarmTime.setMinutes(parseInt(minuteStr));
+        alarmTime.setSeconds(0);
+        alarmTime.setMilliseconds(0);
+
+        const now = new Date();
+
+        // If the alarm time has already passed today → set to next day
+        if (alarmTime.getTime() <= now.getTime()) {
+          alarmTime.setDate(alarmTime.getDate() + 1);
+        }
+
+        // Time difference between now and the alarm
+        const diff = alarmTime.getTime() - now.getTime();
+
+        // Attempt to play audio once (required by some browsers)
+        audio.play()
+          .then(() => {
+            audio.pause(); // stop immediately
+            audio.currentTime = 0; // reset audio position
+
+            tampilkanPesan(`✅ Alarm set for ${inputVal}`, "green");
+
+            // If an old alarm exists → cancel it
+            if (alarmTimeoutID) clearTimeout(alarmTimeoutID);
+
+            // Schedule the alarm sound
+            alarmTimeoutID = setTimeout(() => {
+              tampilkanPesan("⏰ Alarm time has arrived!", "red");
+              audio.play(); // play the alarm sound
+              alert("Alarm is ringing!");
+            }, diff);
+          })
+          .catch((error) => {
+            // Browser blocked auto-play → user must click again
+            tampilkanPesan(
+              "⚠️ Failed to play alarm. Click the button again to allow audio.",
+              "red"
+            );
+            console.error("Audio playback error:", error);
+          });
+      });
+    </script>
+  </body>
+</html>
