@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Konversi Suhu Dua Arah dengan Rumus</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background-color: #111; color: #fff; }
+    label, select, input { margin: 5px 0; display: block; }
+    input {
+      padding: 8px;
+      width: 100px;
+      background: #333;
+      color: white;
+      border: 1px solid #666;
+      border-radius: 4px;
+    }
+    select {
+      padding: 8px;
+      width: 160px;
+      background: #333;
+      color: white;
+      border: 1px solid #666;
+      border-radius: 4px;
+    }
+    #rumus {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #00ff00;
+    }
+    .box-one, .box-two {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .box-one input, 
+    .box-one select {
+      min-width: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Konversi Suhu Dua Arah</h2>
+
+  <!-- Input suhu -->
+  <label>Masukkan Suhu:</label>
+  <div class="box-one">
+  <input type="number" id="inputTemp" value="0" />
+  <select id="fromUnit">
+    <option value="celsius">Celsius</option>
+    <option value="fahrenheit">Fahrenheit</option>
+    <option value="kelvin">Kelvin</option>
+    <option value="rankine">Rankine</option>
+  </select>
+  </div>
+
+  <!-- Output suhu -->
+  <label>Hasil Konversi:</label>
+  <div class="box-two">
+  <input type="number" id="outputTemp" value="0" />
+  <select id="toUnit">
+    <option value="celsius">Celsius</option>
+    <option value="fahrenheit">Fahrenheit</option>
+    <option value="kelvin">Kelvin</option>
+    <option value="reamur">Reamur</option>
+    <option value="rankine">Rankine</option>
+  </select>
+  </div>
+
+  <!-- Tempat menampilkan rumus -->
+  <div id="rumus">Rumus: </div>
+
+  <script>
+    const inputTemp = document.getElementById("inputTemp");
+    const outputTemp = document.getElementById("outputTemp");
+    const fromUnit = document.getElementById("fromUnit");
+    const toUnit = document.getElementById("toUnit");
+    const rumusBox = document.getElementById("rumus");
+
+    function convertTemperature(value, from, to) {
+      let celsius, result;
+      let rumus1 = "", rumus2 = "";
+
+      if (from === to) {
+        rumusBox.textContent = "Rumus: Pilih satuan yang berbeda.";
+        return value;
+      }
+
+      if (from === "celsius") {
+        celsius = value;
+        rumus1 = `${value}°C`;
+      } else if (from === "fahrenheit") {
+        celsius = (value - 32) * 5 / 9;
+        rumus1 = `(${value.toFixed(2)}°F - 32) × 5 ÷ 9`;
+      } else if (from === "kelvin") {
+        celsius = value - 273.15;
+        rumus1 = `${value}°K - 273.15`;
+      } else if (from === "reamur") {
+        celsius = value * 1.25;
+        rumus1 = `1.25 × ${value}°R`;
+      } else if (from === "rankine") {
+        celsius = (value.toFixed(2) - 491.67) * 5 / 9;
+        rumus1 = `(${value.toFixed(2) - 491.67}) x 5 : 9°RA`;
+      }
+      
+      if (to === "celsius") {
+        result = celsius;
+        rumus2 = `= ${result.toFixed(2)}°C`;
+      } else if (to === "fahrenheit") {
+        result = (celsius * 9 / 5) + 32;
+        rumus2 = `(${celsius.toFixed(2)} × 9 ÷ 5) + 32 = ${result.toFixed(2)}°F`;
+      } else if (to === "kelvin") {
+        result = celsius + 273.15;
+        rumus2 = `${celsius.toFixed(2)} + 273.15 = ${result.toFixed(2)}°K`;
+      } else if (to === "reamur") {
+        result = celsius * 0.8;
+        rumus2 = `0.8 × ${celsius.toFixed(2)} = ${result.toFixed(2)}°R`;
+      } else if (to === "rankine") {
+        result = (celsius + 273.15) * 9 / 5;
+        rumus2 = `(${celsius.toFixed(2)} + 273.15) x 9 : 5 = ${result.toFixed(2)}°RA`;
+      }
+
+      rumusBox.textContent = `Rumus: ${rumus1} ${rumus2}`;
+      return result;
+    }
+
+    function getTemplateFormula(from, to) {
+      if (from === to) return "Pilih dua satuan yang berbeda";
+      if (from === "celsius" && to === "fahrenheit") return "(°C × 9/5) + 32 = °F";
+      if (from === "celsius" && to === "kelvin") return "°C + 273.15 = K";
+      if (from === "fahrenheit" && to === "celsius") return "(°F - 32) × 5/9 = °C";
+      if (from === "fahrenheit" && to === "kelvin") return "((°F - 32) × 5/9) + 273.15 = K";
+      if (from === "kelvin" && to === "celsius") return "K - 273.15 = °C";
+      if (from === "kelvin" && to === "fahrenheit") return "((K - 273.15) × 9/5) + 32 = °F";
+      return "";
+    }
+
+    function updateOptions() {
+      const from = fromUnit.value;
+      const to = toUnit.value;
+
+      for (let option of toUnit.options) {
+        option.disabled = (option.value === from);
+      }
+
+      for (let option of fromUnit.options) {
+        option.disabled = (option.value === to);
+      }
+    }
+
+    inputTemp.addEventListener("input", () => {
+      const valueStr = inputTemp.value.trim();
+      const from = fromUnit.value;
+      const to = toUnit.value;
+
+      if (valueStr === "" || isNaN(valueStr)) {
+        rumusBox.textContent = "Rumus: " + getTemplateFormula(from, to);
+        outputTemp.value = "";
+        return;
+      }
+
+      const value = parseFloat(valueStr);
+      const result = convertTemperature(value, from, to);
+      outputTemp.value = Math.round(result * 100) / 100;
+    });
+
+    outputTemp.addEventListener("input", () => {
+      const valueStr = outputTemp.value.trim();
+      const from = toUnit.value;
+      const to = fromUnit.value;
+    
+      if (valueStr === "" || isNaN(valueStr)) {
+        rumusBox.textContent = "Rumus: " + getTemplateFormula(from, to);
+        inputTemp.value = "";
+        return;
+      }
+
+      const value = parseFloat(valueStr);
+      const result = convertTemperature(value, from, to);
+      inputTemp.value = Math.round(result * 100) / 100;
+    });
+
+    fromUnit.addEventListener("change", () => {
+      updateOptions();
+      inputTemp.dispatchEvent(new Event("input"));
+    });
+
+    toUnit.addEventListener("change", () => {
+      updateOptions();
+      inputTemp.dispatchEvent(new Event("input"));
+    });
+
+    // Inisialisasi default berbeda
+    fromUnit.value = "celsius";
+    toUnit.value = "fahrenheit";
+
+    window.addEventListener("DOMContentLoaded", () => {
+      updateOptions();
+      inputTemp.dispatchEvent(new Event("input"));
+    });
+
+    // Select input otomatis saat fokus pertama
+    [inputTemp].forEach(input => {
+      input.addEventListener("focus", function () {
+        this.select();
+      });
+    });
+    [outputTemp].forEach(output => {
+      output.addEventListener("focus", function () {
+        this.select();
+      });
+    });
+  </script>
+</body>
+</html>
