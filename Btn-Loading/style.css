@@ -1,0 +1,133 @@
+/* ------------------------------
+   Layout Utama
+   ------------------------------
+   - Menempatkan seluruh elemen di tengah layar secara vertikal & horizontal.
+   - Menggunakan background gelap untuk memberi fokus pada tombol & animasi.
+---------------------------------*/
+body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* jarak antara button & teks */
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #111;
+    font-family: sans-serif;
+}
+
+/* ------------------------------
+   Tombol Utama
+   ------------------------------
+   - Style dasar tombol.
+   - Responsif saat di-hover dan clean secara visual.
+---------------------------------*/
+button {
+    padding: 15px 35px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    background: #444;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* ------------------------------
+   Mode Loading
+   ------------------------------
+   - Tombol masuk state “loading”: teks disembunyikan.
+   - Spinner dibuat menggunakan pseudo-element ::after.
+   - Pointer-events dimatikan agar tidak bisa diklik dua kali.
+---------------------------------*/
+button.loading {
+    pointer-events: none;
+    background: #222;
+    color: transparent;
+    position: relative;
+}
+
+/* Loader berbentuk lingkaran yang berputar */
+button.loading::after {
+    content: "";
+    width: 22px;
+    height: 22px;
+    border: 3px solid #fff;
+    border-top-color: transparent; /* membuat efek putaran */
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: spin 0.8s linear infinite;
+}
+
+/* Animasi rotasi spinner */
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* ------------------------------
+   Status Done
+   ------------------------------
+   - Setelah proses selesai, tombol berubah hijau.
+   - Tetap tidak bisa diklik agar tidak ada aksi ulang.
+---------------------------------*/
+button.done {
+    background: #00c853;
+    color: #fff !important;
+    pointer-events: none;
+}
+
+/* ------------------------------
+   Teks Hasil
+   ------------------------------
+   - Disembunyikan terlebih dahulu, lalu muncul dengan
+     efek fade-in + slide-up saat diberi class .show
+---------------------------------*/
+.text {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.text.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Warna teks output */
+#text {
+    color: #fff !important;
+    padding: 10px;
+    font-size: 20px;
+}
+
+/* ------------------------------
+   Confetti (Party Popper)
+   ------------------------------
+   - Elemen kecil yang ditembakkan dari tengah layar.
+   - Warna diambil dari variabel CSS --hue (random dari JS).
+   - Setiap confetti memiliki posisi lempar (x,y) berbeda.
+---------------------------------*/
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: hsl(var(--hue), 100%, 60%);
+    top: 50%;
+    left: 50%;
+    opacity: 0.5;
+    pointer-events: none;
+    animation: party 1s linear forwards;
+    border-radius: 2px;
+}
+
+/* Animasi confetti terbang + rotasi + memudar */
+@keyframes party {
+    to {
+        transform: translate(var(--x), var(--y)) rotate(720deg);
+        opacity: 0;
+    }
+}
